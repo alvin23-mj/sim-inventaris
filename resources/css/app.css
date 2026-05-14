@@ -1,0 +1,69 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+    }
+
+    body {
+        @apply antialiased text-gray-800 bg-[#F8FAFC];
+    }
+
+    /* Force regular weight on typically bold elements */
+    h1, h2, h3, h4, h5, h6, b, strong, th, td, button, .font-medium, .font-semibold, .font-bold {
+        font-weight: 400 !important;
+    }
+
+    /* Disable uppercase globally */
+    * {
+        text-transform: none !important;
+    }
+
+    /* Disable italics globally */
+    * {
+        font-style: normal !important;
+    }
+
+    /* Ensure minimum font size 14px */
+    .text-xs, .text-sm {
+        font-size: 14px !important;
+    }
+}
+
+.font-poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+@media print {
+    .no-print, nav, aside, .sidebar-container, button, input[type="month"] {
+        display: none !important;
+    }
+    .py-6 {
+        padding: 0 !important;
+    }
+    .bg-white {
+        background-color: white !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .shadow-sm, .border {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    th, td {
+        border: 1px solid #cbd5e1 !important;
+    }
+    body {
+        background-color: white !important;
+    }
+}
