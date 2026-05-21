@@ -1,7 +1,4 @@
-import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -23,93 +20,188 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
-
-            <div className="mb-8">
-                <h2 className="text-2xl font-normal text-gray-900">Login Administrator</h2>
-                <p className="text-gray-500 text-sm mt-2">Silakan masuk untuk mengelola inventaris.</p>
-            </div>
+            <Head title="Login Admin" />
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div style={{ marginBottom: '16px', fontSize: '14px', color: '#155724', background: '#D4EDDA', padding: '10px 14px', borderRadius: '6px', border: '1px solid #C3E6CB' }}>
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" className="mb-2 text-gray-700" />
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '400', color: '#475569', marginBottom: '8px' }}>Alamat Email</label>
 
                     <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full !rounded-lg border-gray-200 focus:border-gray-500 focus:ring-0"
                         autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
-                        placeholder="Masukkan email..."
+                        placeholder="nama@email.com"
+                        style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            background: '#FFFFFF',
+                            color: '#0F172A',
+                            fontSize: '14px',
+                            fontFamily: 'Telex',
+                            outline: 'none',
+                            transition: 'border-color 0.15s, box-shadow 0.15s',
+                            boxSizing: 'border-box'
+                        }}
+                        onFocus={(e) => {
+                            e.target.style.borderColor = '#2563EB';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
+                        }}
+                        onBlur={(e) => {
+                            e.target.style.borderColor = '#D1D5DB';
+                            e.target.style.boxShadow = 'none';
+                        }}
                     />
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.email} style={{ marginTop: '6px', color: '#DC2626', fontSize: '13px' }} />
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="password" value="Password" className="mb-2 text-gray-700" />
+                <div style={{ marginTop: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <label style={{ fontSize: '14px', fontWeight: '400', color: '#475569' }}>Kata Sandi</label>
+                        {canResetPassword && (
+                            <Link
+                                href={route('password.request')}
+                                style={{
+                                    fontSize: '13px',
+                                    color: '#2563EB',
+                                    textDecoration: 'none',
+                                    transition: 'color 0.15s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.color = '#1D4ED8'}
+                                onMouseLeave={(e) => e.target.style.color = '#2563EB'}
+                            >
+                                Lupa sandi?
+                            </Link>
+                        )}
+                    </div>
 
                     <TextInput
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full !rounded-lg border-gray-200 focus:border-gray-500 focus:ring-0"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
-                        placeholder="Masukkan password..."
+                        placeholder="••••••••"
+                        style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            background: '#FFFFFF',
+                            color: '#0F172A',
+                            fontSize: '14px',
+                            fontFamily: 'Telex',
+                            outline: 'none',
+                            transition: 'border-color 0.15s, box-shadow 0.15s',
+                            boxSizing: 'border-box'
+                        }}
+                        onFocus={(e) => {
+                            e.target.style.borderColor = '#2563EB';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
+                        }}
+                        onBlur={(e) => {
+                            e.target.style.borderColor = '#D1D5DB';
+                            e.target.style.boxShadow = 'none';
+                        }}
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} style={{ marginTop: '6px', color: '#DC2626', fontSize: '13px' }} />
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <label className="flex items-center">
-                        <Checkbox
+                <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                            type="checkbox"
                             name="remember"
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
+                            onChange={(e) => setData('remember', e.target.checked)}
+                            style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '4px',
+                                border: '1px solid #D1D5DB',
+                                background: '#FFFFFF',
+                                cursor: 'pointer',
+                                accentColor: '#2563EB',
+                            }}
                         />
-                        <span className="ms-2 text-sm text-gray-500">
-                            Ingat saya
+                        <span style={{ marginLeft: '8px', fontSize: '13px', color: '#475569' }}>
+                            Ingat saya di perangkat ini
                         </span>
                     </label>
-
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="text-xs text-gray-400 hover:text-gray-900 transition-colors"
-                        >
-                            Lupa password?
-                        </Link>
-                    )}
                 </div>
 
-                <div className="pt-2">
+                <div style={{ marginTop: '28px' }}>
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-gray-800 text-white py-3 rounded-lg font-bold hover:bg-gray-900 transition-all shadow-md disabled:opacity-50"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            background: '#2563EB',
+                            color: '#fff',
+                            borderRadius: '6px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '15px',
+                            fontFamily: 'Telex',
+                            boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            opacity: processing ? 0.7 : 1
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#1D4ED8';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(37, 99, 235, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#2563EB';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(37, 99, 235, 0.2)';
+                        }}
                     >
-                        {processing ? 'Sedang Masuk...' : 'Masuk ke Dashboard'}
+                        {processing ? 'Memproses...' : 'Masuk ke Dashboard'}
+                        <i className="fa-solid fa-right-to-bracket" style={{ fontSize: '14px' }}></i>
                     </button>
-                    
+                </div>
+
+                <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <Link
                         href="/"
-                        className="block text-center mt-6 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                        style={{
+                            fontSize: '13px',
+                            color: '#64748B',
+                            textDecoration: 'none',
+                            transition: 'color 0.15s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            marginTop: '4px'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#0F172A'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
                     >
-                        <i className="fas fa-arrow-left mr-2"></i> Kembali ke Portal
+                        <i className="fa-solid fa-arrow-left" style={{ fontSize: '12px' }}></i>
+                        Kembali ke Portal
                     </Link>
                 </div>
             </form>

@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import CustomButton from '@/Components/CustomButton';
 
-export default function Dashboard({ stats, items }) {
+export default function Dashboard({ stats = {}, items = [] }) {
     return (
         <AuthenticatedLayout
             header={

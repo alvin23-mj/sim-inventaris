@@ -21,6 +21,16 @@ class UnitRequestController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return Inertia::render('RequestForm', [
+            'items' => Item::where('is_active', true)
+                ->where('stok', '>', 0)
+                ->orderBy('nama_simaset')
+                ->get(),
+        ]);
+    }
+
     public function adminIndex(Request $request)
     {
         $query = ItemRequest::with(['details.item']);

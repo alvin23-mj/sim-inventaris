@@ -1,272 +1,884 @@
-import React, { useRef } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import CustomButton from '@/Components/CustomButton';
-import SignaturePad from '@/Components/SignaturePad';
+import React, { useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
 
-export default function Welcome({ items, auth }) {
-    const { data, setData, post, processing, errors, reset, transform } = useForm({
-        unit_name: '',
-        recipient_name: '',
-        request_date: new Date().toISOString().split('T')[0],
-        notes: '',
-        signature: null,
-        details: [{ item_id: '', quantity: 1, notes: '' }],
-    });
+const baseStyle = {
+    fontFamily: "'Telex', sans-serif",
+    fontSize: '14px',
+    color: '#202124',
+};
 
-    const signatureRef = useRef(null);
+const staticCategories = [
+    {
+        id: 'atk',
+        name: 'Alat Tulis Kantor',
+        icon: 'fa-solid fa-pen-nib',
+        color: '#8B5CF6',
+        bgLight: '#F5F3FF',
+        desc: 'Kertas HVS, pulpen, map, tinta printer, staples, binder clip, dan kebutuhan cetakan administrasi kantor unit.'
+    },
+    {
+        id: 'alkes',
+        name: 'Alat Kesehatan',
+        icon: 'fa-solid fa-stethoscope',
+        color: '#F59E0B',
+        bgLight: '#FEF3C7',
+        desc: 'Masker medis, sarung tangan steril, kasa roll, spuit/jarum suntik, dan bahan medis habis pakai (BMHP) lainnya.'
+    },
+    {
+        id: 'cetak',
+        name: 'Cetak & Formulir',
+        icon: 'fa-solid fa-print',
+        color: '#10B981',
+        bgLight: '#ECFDF5',
+        desc: 'Formulir rekam medis, berkas penunjang medis, lembar resep, map pasien, dan lembaran resmi RSUD.'
+    },
+    {
+        id: 'rt',
+        name: 'Rumah Tangga / RT',
+        icon: 'fa-solid fa-broom',
+        color: '#6366F1',
+        bgLight: '#EEF2FF',
+        desc: 'Cairan disinfektan, sabun cuci tangan, tisu hand-towel, plastik sampah medis, dan cairan pembersih.'
+    }
+];
 
-    const handleAddDetail = () => {
-        setData('details', [...data.details, { item_id: '', quantity: 1, notes: '' }]);
-    };
-
-    const handleRemoveDetail = (index) => {
-        const newDetails = data.details.filter((_, i) => i !== index);
-        setData('details', newDetails);
-    };
-
-    const handleDetailChange = (index, field, value) => {
-        const newDetails = [...data.details];
-        newDetails[index][field] = value;
-        setData('details', newDetails);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        const latestSignature = signatureRef.current?.getSignature();
-
-        transform((data) => ({
-            ...data,
-            signature: latestSignature
-        }));
-
-        post(route('requests.store'), {
-            onSuccess: () => {
-                reset();
-                signatureRef.current?.clear();
-                alert('Permintaan berhasil dikirim!');
-            }
-        });
-    };
+export default function Welcome({ auth = {} }) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5] font-telex text-[14px]">
-            <Head title="SIM Inventaris - Permintaan Barang" />
+        <>
+            <Head title="SIM Inventaris - Portal Permintaan Barang & Inventaris RSUD Nganjuk" />
 
-            {/* Header / Navbar */}
-            {/* Header / Navbar */}
-            <nav className="bg-white border-b border-gray-200 py-3 px-4 sm:px-8 sticky top-0 z-50 shadow-sm">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <img src="/images/logo_rsud.jpeg" alt="Logo RSUD" className="h-8 sm:h-10 w-auto" />
-                        <h1 className="font-bold text-gray-900 leading-tight text-[16px] sm:text-[18px]">SIM Inventaris</h1>
-                    </div>
+            <style>
+                {`
+                    /* Modern Premium Layout Styles */
+                    .hero-outer {
+                        background: #FFFFFF;
+                        border-bottom: 1px solid #E2E8F0;
+                    }
+                    .hero-container {
+                        max-width: 1100px;
+                        margin: 0 auto;
+                        padding: 60px 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 48px;
+                        box-sizing: border-box;
+                    }
+                    @media (max-width: 768px) {
+                        .hero-container {
+                            flex-direction: column-reverse;
+                            padding: 40px 16px;
+                            text-align: center;
+                            gap: 32px;
+                        }
+                    }
+                    .hero-text-content {
+                        flex: 1;
+                        text-align: left;
+                    }
+                    @media (max-width: 768px) {
+                        .hero-text-content {
+                            text-align: center;
+                        }
+                    }
+                    .hero-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        background: #EFF6FF;
+                        color: #2563EB;
+                        padding: 6px 14px;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        letter-spacing: 0.5px;
+                        text-transform: uppercase;
+                        margin-bottom: 20px;
+                        border: 1px solid #DBEAFE;
+                    }
+                    @media (max-width: 768px) {
+                        .hero-badge {
+                            margin: 0 auto 20px auto;
+                        }
+                    }
+                    .hero-main-title {
+                        font-size: 38px;
+                        line-height: 1.25;
+                        color: #0F172A;
+                        margin: 0 0 16px 0;
+                    }
+                    @media (max-width: 768px) {
+                        .hero-main-title {
+                            font-size: 28px;
+                        }
+                    }
+                    .hero-main-subtitle {
+                        font-size: 15px;
+                        color: #475569;
+                        line-height: 1.6;
+                        margin: 0 0 28px 0;
+                    }
+                    .hero-cta-btn {
+                        background: #2563EB;
+                        color: #fff;
+                        border: none;
+                        padding: 12px 28px;
+                        font-size: 15px;
+                        font-family: 'Telex', sans-serif;
+                        font-weight: 500;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1);
+                        transition: all 0.2s ease;
+                        text-decoration: none;
+                    }
+                    .hero-cta-btn:hover {
+                        background: #1D4ED8;
+                        transform: translateY(-1px);
+                        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -2px rgba(37, 99, 235, 0.15);
+                    }
+                    .hero-image-side {
+                        flex: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    .hero-lottie-side {
+                        width: 100%;
+                        max-width: 480px;
+                        aspect-ratio: 1.2;
+                    }
 
-                    <div className="flex items-center gap-4">
-                        {auth.user ? (
-                            <Link href={route('dashboard')} className="text-gray-500 hover:text-gray-900 font-bold transition-colors text-[13px] sm:text-[14px]">
-                                <i className="fas fa-tachometer-alt mr-1 sm:mr-2"></i> <span className="hidden sm:inline">Dashboard Admin</span>
+                    /* Categories Section */
+                    .cat-outer {
+                        padding: 60px 0;
+                        background: #F8FAFC;
+                        border-bottom: 1px solid #E2E8F0;
+                    }
+                    .cat-container {
+                        max-width: 1100px;
+                        margin: 0 auto;
+                        padding: 0 24px;
+                        box-sizing: border-box;
+                    }
+                    .cat-header {
+                        text-align: center;
+                        margin-bottom: 40px;
+                    }
+                    .cat-title {
+                        font-size: 24px;
+                        color: #0F172A;
+                        margin: 0 0 8px 0;
+                    }
+                    .cat-subtitle {
+                        font-size: 14px;
+                        color: #64748B;
+                        margin: 0;
+                    }
+                    .cat-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                        gap: 20px;
+                    }
+                    .cat-card {
+                        background: #fff;
+                        border: 1px solid #E2E8F0;
+                        border-radius: 12px;
+                        padding: 24px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        text-align: center;
+                        box-sizing: border-box;
+                    }
+                    .cat-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+                    }
+                    .cat-card-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 20px;
+                        margin-bottom: 16px;
+                    }
+                    .cat-card-title {
+                        font-size: 21px;
+                        color: #0F172A;
+                        margin: 0 0 12px 0;
+                    }
+                    .cat-card-desc {
+                        font-size: 15px;
+                        color: #64748B;
+                        line-height: 1.6;
+                        margin: 0;
+                    }
+                    .cat-card-action {
+                        font-size: 13px;
+                        color: #2563EB;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: gap 0.2s;
+                        margin-top: auto;
+                        padding-top: 16px;
+                    }
+                    .cat-card:hover .cat-card-action {
+                        gap: 10px;
+                    }
+
+                    /* Steps/Tata Cara Section */
+                    .steps-outer {
+                        background: #F1F5F9;
+                        padding: 60px 0;
+                        border-bottom: 1px solid #E2E8F0;
+                    }
+                    .steps-container {
+                        max-width: 1100px;
+                        margin: 0 auto;
+                        padding: 0 24px;
+                        box-sizing: border-box;
+                    }
+                    .steps-header {
+                        text-align: center;
+                        margin-bottom: 48px;
+                    }
+                    .steps-title {
+                        font-size: 24px;
+                        color: #0F172A;
+                        margin: 0 0 8px 0;
+                    }
+                    .steps-subtitle {
+                        font-size: 14px;
+                        color: #64748B;
+                        margin: 0;
+                    }
+                    .steps-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                        gap: 24px;
+                        position: relative;
+                        margin-top: 16px;
+                    }
+                    .step-card {
+                        background: #F8FAFC;
+                        border: 1px solid #E2E8F0;
+                        border-radius: 12px;
+                        padding: 24px;
+                        text-align: center;
+                        position: relative;
+                        box-sizing: border-box;
+                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    }
+                    .step-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 16px rgba(0,0,0,0.03);
+                    }
+
+                    /* Barcode scan animation */
+                    @keyframes scanLine {
+                        0%   { top: 8px; opacity: 1; }
+                        48%  { opacity: 1; }
+                        50%  { top: calc(100% - 8px); opacity: 0.7; }
+                        52%  { opacity: 1; }
+                        100% { top: 8px; opacity: 1; }
+                    }
+                    .barcode-scan-wrapper {
+                        position: relative;
+                        width: 44px;
+                        height: 44px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        overflow: hidden;
+                    }
+                    .barcode-bars {
+                        display: flex;
+                        align-items: flex-end;
+                        gap: 2px;
+                        height: 30px;
+                    }
+                    .barcode-bars span {
+                        display: block;
+                        background: #2563EB;
+                        border-radius: 1px;
+                        width: 3px;
+                    }
+                    .scan-line {
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background: linear-gradient(90deg, transparent 0%, #EF4444 20%, #EF4444 80%, transparent 100%);
+                        animation: scanLine 1.8s ease-in-out infinite;
+                        box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+                        border-radius: 2px;
+                    }
+                    .step-number {
+                        position: absolute;
+                        top: -15px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 30px;
+                        height: 30px;
+                        background: #2563EB;
+                        color: #fff;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+                    }
+                    .step-icon-wrapper {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 10px;
+                        background: #EFF6FF;
+                        color: #2563EB;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 18px;
+                        margin: 10px auto 16px auto;
+                    }
+                    .step-card-title {
+                        font-size: 21px;
+                        color: #0F172A;
+                        margin: 0 0 12px 0;
+                    }
+                    .step-card-desc {
+                        font-size: 15px;
+                        color: #64748B;
+                        line-height: 1.6;
+                        margin: 0;
+                    }
+
+                    /* Form Outer Styles */
+                    .form-outer {
+                        padding: 60px 0;
+                        background: #F0F4F9;
+                    }
+                    .form-container {
+                        max-width: 760px;
+                        margin: 0 auto;
+                        padding: 0 24px;
+                        box-sizing: border-box;
+                    }
+
+                    /* Responsive Navbar Styles */
+                    .nav-middle {
+                        display: flex;
+                        align-items: center;
+                        gap: 24px;
+                    }
+                    .nav-right {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    .nav-hamburger {
+                        display: none;
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                        color: #475569;
+                        font-size: 18px;
+                        padding: 8px;
+                    }
+                    .mobile-dropdown-menu {
+                        display: none;
+                        background: #fff;
+                        border-bottom: 1px solid #E2E8F0;
+                        padding: 16px;
+                        flex-direction: column;
+                        gap: 16px;
+                        position: absolute;
+                        top: 60px;
+                        left: 0;
+                        right: 0;
+                        z-index: 40;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    }
+                    @media (max-width: 768px) {
+                        .nav-middle {
+                            display: none;
+                        }
+                        .nav-right {
+                            display: none;
+                        }
+                        .nav-hamburger {
+                            display: block;
+                        }
+                        .mobile-dropdown-menu.active {
+                            display: flex;
+                        }
+                    }
+
+                    /* Input styling overrides to avoid browser native focus rings and enforce borders */
+                    input:focus, select:focus, textarea:focus {
+                        outline: none !important;
+                        border-color: #3B82F6 !important;
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+                    }
+                `}
+            </style>
+
+            <div style={{ ...baseStyle, minHeight: '100vh', background: '#F0F4F9' }}>
+                {/* Header Navbar */}
+                <header style={{
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(8px)',
+                    borderBottom: '1px solid #E5E7EB',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 50,
+                }}>
+                    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px', position: 'relative', width: '100%', boxSizing: 'border-box' }}>
+                        {/* Left: Logo & Brand */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{
+                                width: '34px', height: '34px',
+                                borderRadius: '6px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0,
+                                overflow: 'hidden'
+                            }}>
+                                <img src="/images/logo_rsud.jpeg" alt="RSUD Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ width: '1px', height: '24px', background: '#E2E8F0', margin: '0 4px' }}></div>
+                            <div>
+                                <div style={{ fontWeight: '400', fontSize: '18px', color: '#1E293B', lineHeight: 1 }}>SIM Inventaris</div>
+                            </div>
+                        </div>
+
+                        {/* Middle: Links */}
+                        <div className="nav-middle">
+                            <Link
+                                href={route('requests.create')}
+                                style={{
+                                    textDecoration: 'none',
+                                    fontSize: '15px',
+                                    color: '#475569',
+                                    fontFamily: "'Telex', sans-serif",
+                                    padding: '8px 4px',
+                                    transition: 'color 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.color = '#2563EB'}
+                                onMouseLeave={e => e.currentTarget.style.color = '#475569'}
+                            >
+                                Form Permintaan
                             </Link>
-                        ) : (
-                            <Link href={route('login')} className="bg-white text-gray-600 px-3 sm:px-4 py-1.5 rounded-lg font-bold hover:bg-gray-50 transition-all border border-gray-200 text-[11px] sm:text-xs">
-                                <i className="fas fa-lock mr-1 sm:mr-2"></i> Login Admin
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </nav>
+                        </div>
 
-            <div className="py-6 sm:py-8 px-4 sm:px-6">
-                <div className="max-w-2xl mx-auto">
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Title Card */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div className="bg-gray-400 h-2.5 w-full"></div>
-                            <div className="p-6 sm:p-8">
-                                <h2 className="text-2xl sm:text-3xl font-normal text-gray-900 mb-4">Portal Permintaan Barang</h2>
-                                <p className="text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4">
-                                    Silakan isi formulir di bawah ini untuk mengajukan permintaan stok barang atau alat kesehatan bagi unit/ruangan Anda.
+                        {/* Right: Auth Dashboard / Login */}
+                        <div className="nav-right">
+                            {auth.user ? (
+                                <Link
+                                    href={route('dashboard')}
+                                    style={{
+                                        padding: '8px 16px',
+                                        background: '#2563EB',
+                                        color: '#fff',
+                                        textDecoration: 'none',
+                                        fontSize: '15px',
+                                        transition: 'all 0.2s',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.15)',
+                                        fontFamily: "'Telex', sans-serif",
+                                        borderRadius: '6px',
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.background = '#1D4ED8';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.background = '#2563EB';
+                                        e.currentTarget.style.transform = 'none';
+                                    }}
+                                >
+                                    <i className="fa-solid fa-chart-line"></i>
+                                    Dashboard Admin
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={route('login')}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: '1px solid #E2E8F0',
+                                        color: '#475569',
+                                        textDecoration: 'none',
+                                        fontSize: '15px',
+                                        transition: 'all 0.2s',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        fontFamily: "'Telex', sans-serif",
+                                        borderRadius: '6px',
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.background = '#F8FAFC';
+                                        e.currentTarget.style.borderColor = '#CBD5E1';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.background = 'transparent';
+                                        e.currentTarget.style.borderColor = '#E2E8F0';
+                                    }}
+                                >
+                                    <i className="fa-solid fa-lock"></i>
+                                    Login Admin
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Hamburger Button */}
+                        <button
+                            className="nav-hamburger"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            aria-label="Toggle Navigation Menu"
+                        >
+                            <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+                        </button>
+
+                        {/* Mobile Dropdown Panel */}
+                        <div className={`mobile-dropdown-menu ${mobileMenuOpen ? 'active' : ''}`}>
+                            <Link
+                                href={route('requests.create')}
+                                onClick={() => setMobileMenuOpen(false)}
+                                style={{
+                                    textDecoration: 'none',
+                                    fontSize: '15px',
+                                    color: '#475569',
+                                    fontFamily: "'Telex', sans-serif",
+                                    padding: '8px 0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    textAlign: 'left',
+                                    width: '100%',
+                                }}
+                            >
+                                <i className="fa-solid fa-file-signature"></i>
+                                Form Permintaan
+                            </Link>
+                            <hr style={{ border: 0, borderTop: '1px solid #F1F5F9', margin: '4px 0' }} />
+                            {auth.user ? (
+                                <Link
+                                    href={route('dashboard')}
+                                    style={{
+                                        padding: '10px',
+                                        background: '#2563EB',
+                                        color: '#fff',
+                                        textDecoration: 'none',
+                                        fontSize: '15px',
+                                        textAlign: 'center',
+                                        fontFamily: "'Telex', sans-serif",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '6px',
+                                        borderRadius: '6px',
+                                    }}
+                                >
+                                    <i className="fa-solid fa-chart-line"></i>
+                                    Dashboard Admin
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={route('login')}
+                                    style={{
+                                        padding: '10px',
+                                        border: '1px solid #E2E8F0',
+                                        color: '#475569',
+                                        textDecoration: 'none',
+                                        fontSize: '15px',
+                                        textAlign: 'center',
+                                        fontFamily: "'Telex', sans-serif",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '6px',
+                                        borderRadius: '6px',
+                                    }}
+                                >
+                                    <i className="fa-solid fa-lock"></i>
+                                    Login Admin
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                {/* Hero Section */}
+                <section className="hero-outer">
+                    <div className="hero-container">
+                        <div className="hero-text-content">
+                            <span className="hero-badge">
+                                Portal Permintaan Inventaris RSUD
+                            </span>
+                            <h1 className="hero-main-title">
+                                Permintaan Stok Barang Cepat & Teratur
+                            </h1>
+                            <p className="hero-main-subtitle">
+                                Ajukan permintaan alat tulis kantor, alat kesehatan habis pakai, cetakan formulir, maupun kebutuhan logistik rumah tangga ruangan Anda dengan mudah. Proses persetujuan cepat dan terpantau.
+                            </p>
+                            <Link
+                                href="/permintaan"
+                                className="hero-cta-btn"
+                            >
+                                Buat Permintaan Baru <i className="fa-solid fa-arrow-right"></i>
+                            </Link>
+                        </div>
+                        <div className="hero-image-side">
+                            <div className="hero-lottie-side">
+                                <lottie-player
+                                    src="/inventory.json"
+                                    background="transparent"
+                                    speed="1"
+                                    loop
+                                    autoplay
+                                ></lottie-player>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+
+                {/* Steps Section */}
+                <section className="steps-outer">
+                    <div className="steps-container">
+                        <div className="steps-header">
+                            <h2 className="steps-title">Alur Proses Permintaan Barang</h2>
+                            <p className="steps-subtitle">Tata cara lengkap pengajuan permintaan barang inventaris di RSUD Nganjuk</p>
+                        </div>
+
+                        <div className="steps-grid">
+                            {/* Step 1 */}
+                            <div className="step-card">
+                                <div className="step-number">1</div>
+                                <div className="step-icon-wrapper">
+                                    <i className="fa-solid fa-phone"></i>
+                                </div>
+                                <h3 className="step-card-title">Hubungi SIMRS</h3>
+                                <p className="step-card-desc">
+                                    Peminta dari unit kerja menghubungi petugas SIMRS melalui telepon atau datang langsung untuk mengajukan kebutuhan barang.
+                                </p>
+                            </div>
+
+                            {/* Step 2 */}
+                            <div className="step-card">
+                                <div className="step-number">2</div>
+                                <div className="step-icon-wrapper">
+                                    <i className="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <h3 className="step-card-title">Pengecekan Stok</h3>
+                                <p className="step-card-desc">
+                                    Petugas SIMRS mengecek ketersediaan barang di gudang inventaris. Jika tersedia, proses dilanjutkan ke tahap berikutnya.
+                                </p>
+                            </div>
+
+                            {/* Step 3 */}
+                            <div className="step-card">
+                                <div className="step-number">3</div>
+                                <div className="step-icon-wrapper" style={{ background: '#EFF6FF', overflow: 'visible' }}>
+                                    <div className="barcode-scan-wrapper">
+                                        <div className="barcode-bars">
+                                            <span style={{ height: '24px' }}></span>
+                                            <span style={{ height: '16px' }}></span>
+                                            <span style={{ height: '28px' }}></span>
+                                            <span style={{ height: '20px' }}></span>
+                                            <span style={{ height: '30px' }}></span>
+                                            <span style={{ height: '14px' }}></span>
+                                            <span style={{ height: '26px' }}></span>
+                                            <span style={{ height: '18px' }}></span>
+                                            <span style={{ height: '22px' }}></span>
+                                        </div>
+                                        <div className="scan-line"></div>
+                                    </div>
+                                </div>
+                                <h3 className="step-card-title">Scan Barcode</h3>
+                                <p className="step-card-desc">
+                                    Barang yang tersedia di-scan menggunakan barcode scanner untuk pencatatan identitas unik dan pelacakan distribusi secara akurat.
+                                </p>
+                            </div>
+
+                            {/* Step 4 */}
+                            <div className="step-card">
+                                <div className="step-number">4</div>
+                                <div className="step-icon-wrapper">
+                                    <i className="fa-solid fa-file-pen"></i>
+                                </div>
+                                <h3 className="step-card-title">Isi Formulir</h3>
+                                <p className="step-card-desc">
+                                    Peminta mengisi formulir permintaan secara lengkap, termasuk identitas unit, daftar barang, dan tanda tangan kepala unit.
+                                </p>
+                            </div>
+
+                            {/* Step 5 */}
+                            <div className="step-card">
+                                <div className="step-number">5</div>
+                                <div className="step-icon-wrapper">
+                                    <i className="fa-solid fa-box-open"></i>
+                                </div>
+                                <h3 className="step-card-title">Barang Diterima</h3>
+                                <p className="step-card-desc">
+                                    Barang diserahkan kepada peminta dan dicatat sebagai keluar dari gudang. Permintaan selesai dan terdokumentasi sistem.
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </section>
 
-                        {/* Identity Card */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-6">
-                            <div className="grid md:grid-cols-1 gap-6 sm:gap-8">
-                                <div className="space-y-3">
-                                    <InputLabel htmlFor="unit_name" value="Nama Unit / Ruangan" className="text-gray-900 text-[15px] font-medium" />
-                                    <TextInput
-                                        id="unit_name"
-                                        value={data.unit_name}
-                                        className="w-full !py-2.5 bg-white border-gray-200 focus:border-gray-500 focus:ring-0 transition-all text-[15px] !rounded-lg"
-                                        placeholder="Contoh: IGD, Rawat Inap A"
-                                        onChange={(e) => setData('unit_name', e.target.value)}
-                                        required
-                                    />
-                                    {errors.unit_name && <div className="text-red-500 text-xs mt-1">{errors.unit_name}</div>}
-                                </div>
 
-                                <div className="space-y-3">
-                                    <InputLabel htmlFor="recipient_name" value="Nama Lengkap Pemohon" className="text-gray-900 text-[15px] font-medium" />
-                                    <TextInput
-                                        id="recipient_name"
-                                        value={data.recipient_name}
-                                        className="w-full !py-2.5 bg-white border-gray-200 focus:border-gray-500 focus:ring-0 transition-all text-[15px] !rounded-lg"
-                                        placeholder="Jawaban Anda"
-                                        onChange={(e) => setData('recipient_name', e.target.value)}
-                                        required
-                                    />
-                                    {errors.recipient_name && <div className="text-red-500 text-xs mt-1">{errors.recipient_name}</div>}
+                {/* Deep Dark Premium Footer */}
+                <footer style={{
+                    background: '#0F172A',
+                    color: '#94A3B8',
+                    padding: '64px 24px 32px',
+                    fontFamily: "'Telex', sans-serif",
+                    borderTop: '1px solid #1E293B',
+                }}>
+                    <div style={{
+                        maxWidth: '1100px',
+                        margin: '0 auto',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                        gap: '40px',
+                        marginBottom: '48px',
+                    }}>
+                        {/* Column 1: Brand Info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{
+                                    width: '38px',
+                                    height: '38px',
+                                    borderRadius: '8px',
+                                    background: '#FFFFFF',
+                                    padding: '2px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                }}>
+                                    <img src="/images/logo_rsud.jpeg" alt="RSUD Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                 </div>
-
-                                <div className="space-y-3">
-                                    <InputLabel htmlFor="request_date" value="Tanggal Permintaan" className="text-gray-900 text-[15px] font-medium" />
-                                    <TextInput
-                                        id="request_date"
-                                        type="date"
-                                        value={data.request_date}
-                                        className="w-full !py-2.5 bg-white border-gray-200 focus:border-gray-500 focus:ring-0 text-[15px] !rounded-lg"
-                                        onChange={(e) => setData('request_date', e.target.value)}
-                                        required
-                                    />
-                                    {errors.request_date && <div className="text-red-500 text-xs mt-1">{errors.request_date}</div>}
-                                </div>
+                                <span style={{ fontSize: '20px', fontWeight: 'normal', color: '#F1F5F9' }}>SIM Inventaris</span>
+                            </div>
+                            <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#94A3B8', margin: 0 }}>
+                                Sistem Informasi Manajemen Inventaris & Logistik RS Daerah Nganjuk terpadu untuk mendukung kelancaran operasional pelayanan kesehatan di seluruh unit secara cepat, transparan, dan profesional.
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                                <a href="https://rsud.nganjukkab.go.id" target="_blank" rel="noopener noreferrer" style={{
+                                    width: '32px', height: '32px', borderRadius: '50%', background: '#1E293B',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F1F5F9',
+                                    textDecoration: 'none', transition: 'all 0.2s'
+                                }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#2563EB'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#1E293B'; e.currentTarget.style.transform = 'none'; }}>
+                                    <i className="fa-solid fa-globe" style={{ fontSize: '14px' }}></i>
+                                </a>
+                                <a href="tel:0358321818" style={{
+                                    width: '32px', height: '32px', borderRadius: '50%', background: '#1E293B',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F1F5F9',
+                                    textDecoration: 'none', transition: 'all 0.2s'
+                                }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#10B981'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#1E293B'; e.currentTarget.style.transform = 'none'; }}>
+                                    <i className="fa-solid fa-phone" style={{ fontSize: '14px' }}></i>
+                                </a>
+                                <a href="mailto:rsudnganjuk@gmail.com" style={{
+                                    width: '32px', height: '32px', borderRadius: '50%', background: '#1E293B',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F1F5F9',
+                                    textDecoration: 'none', transition: 'all 0.2s'
+                                }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#EF4444'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#1E293B'; e.currentTarget.style.transform = 'none'; }}>
+                                    <i className="fa-solid fa-envelope" style={{ fontSize: '14px' }}></i>
+                                </a>
                             </div>
                         </div>
 
-                        {/* Items Section Header */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                                <h3 className="text-[16px] font-medium text-gray-900">Daftar Barang yang Diminta</h3>
-                                <button
-                                    type="button"
-                                    onClick={handleAddDetail}
-                                    className="w-full sm:w-auto text-gray-600 hover:text-gray-900 text-[13px] font-bold flex items-center justify-center gap-2 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
-                                >
-                                    <i className="fas fa-plus text-blue-500"></i> Tambah Item
-                                </button>
+                        {/* Column 2: Tautan Pintar */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <h3 style={{ fontSize: '15px', color: '#F1F5F9', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tautan Pintar</h3>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <li>
+                                    <Link
+                                        href={route('requests.create')}
+                                        style={{ fontSize: '13px', color: '#94A3B8', textDecoration: 'none', transition: 'color 0.15s', fontFamily: "'Telex', sans-serif" }}
+                                        onMouseEnter={e => e.currentTarget.style.color = '#3B82F6'}
+                                        onMouseLeave={e => e.currentTarget.style.color = '#94A3B8'}
+                                    >
+                                        Form Permintaan Barang
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href={route('login')} style={{ fontSize: '13px', color: '#94A3B8', textDecoration: 'none', transition: 'color 0.15s' }}
+                                        onMouseEnter={e => e.currentTarget.style.color = '#3B82F6'}
+                                        onMouseLeave={e => e.currentTarget.style.color = '#94A3B8'}>
+                                        Login Administrasi
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Column 3: Contact & Info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <h3 style={{ fontSize: '15px', color: '#F1F5F9', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Kontak & Alamat</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px', lineHeight: '1.6' }}>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <i className="fa-solid fa-location-dot" style={{ color: '#F1F5F9', marginTop: '4px' }}></i>
+                                    <span>Jl. Dr. Soetomo No. 62 Nganjuk, Jawa Timur, Indonesia</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <i className="fa-solid fa-phone" style={{ color: '#F1F5F9', marginTop: '2px' }}></i>
+                                    <span>(0358) 321818</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <i className="fa-solid fa-envelope" style={{ color: '#F1F5F9', marginTop: '2px' }}></i>
+                                    <span>rsudnganjuk@nganjukkab.go.id</span>
+                                </div>
                             </div>
-
-                            <div className="space-y-10">
-                                {data.details.map((detail, index) => (
-                                    <div key={index} className="space-y-4 p-4 rounded-xl border border-dashed border-gray-200">
-                                        <div className="flex flex-col sm:flex-row gap-4 items-start">
-                                            <div className="w-full flex-1">
-                                                <InputLabel value={`Barang #${index + 1}`} className="text-gray-900 text-[14px] font-medium mb-2" />
-                                                <select
-                                                    value={detail.item_id}
-                                                    onChange={(e) => handleDetailChange(index, 'item_id', e.target.value)}
-                                                    className="w-full border-gray-200 rounded-lg shadow-sm focus:border-gray-500 focus:ring-0 text-[14px] py-2.5 px-4 bg-white"
-                                                    required
-                                                >
-                                                    <option value="">Pilih Barang...</option>
-                                                    {items.map((item) => (
-                                                        <option key={item.id} value={item.id}>
-                                                            {item.nama_simaset} ({item.kode_simaset})
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="w-full sm:w-24">
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <InputLabel value="Jumlah" className="text-gray-900 text-[14px] font-medium !mb-0" />
-                                                    {data.details.length > 1 && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveDetail(index)}
-                                                            className="sm:hidden text-red-500 transition-all text-xs font-bold"
-                                                        >
-                                                            Hapus Item
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <TextInput
-                                                        type="number"
-                                                        value={detail.quantity}
-                                                        className="w-full !py-2.5 !rounded-lg !px-3"
-                                                        onChange={(e) => handleDetailChange(index, 'quantity', e.target.value)}
-                                                        required
-                                                        min="1"
-                                                    />
-                                                    {data.details.length > 1 && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveDetail(index)}
-                                                            className="hidden sm:block text-gray-400 hover:text-red-500 transition-all flex-shrink-0"
-                                                        >
-                                                            <i className="fas fa-trash-alt text-[16px]"></i>
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <InputLabel value="Catatan Item" className="text-gray-900 text-[14px] font-medium mb-2" />
-                                            <textarea
-                                                value={detail.notes}
-                                                onChange={(e) => handleDetailChange(index, 'notes', e.target.value)}
-                                                className="w-full border-gray-200 rounded-lg shadow-sm focus:border-gray-500 focus:ring-0 text-[13px] py-2.5 px-4 bg-white min-h-[80px]"
-                                                placeholder="Catatan khusus..."
-                                            ></textarea>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            {errors.details && <div className="text-red-500 text-xs mt-4">{errors.details}</div>}
                         </div>
+                    </div>
 
-                        {/* Signature Card */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                            <SignaturePad
-                                ref={signatureRef}
-                                label="Tanda Tangan Kepala Unit / Pemohon"
-                            />
-                            {errors.signature && <div className="text-red-500 text-xs mt-2">{errors.signature}</div>}
+                    {/* Footer bottom */}
+                    <div style={{
+                        maxWidth: '1100px',
+                        margin: '0 auto',
+                        paddingTop: '32px',
+                        borderTop: '1px solid #1E293B',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '12px',
+                        color: '#64748B',
+                        gap: '16px',
+                    }}>
+                        <span>&copy; {new Date().getFullYear()} RS Daerah Nganjuk. Hak Cipta Dilindungi Undang-Undang.</span>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <a href="#" style={{ color: '#64748B', textDecoration: 'none' }}>Kebijakan Privasi</a>
+                            <a href="#" style={{ color: '#64748B', textDecoration: 'none' }}>Syarat & Ketentuan</a>
                         </div>
-
-                        {/* Submit Section */}
-                        <div className="flex flex-col md:flex-row justify-between items-center py-4">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="bg-gray-800 text-white px-8 py-2.5 rounded-lg font-bold hover:bg-gray-900 transition-all shadow-md disabled:opacity-50"
-                            >
-                                {processing ? 'Mengirim...' : 'Kirim'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => reset()}
-                                className="text-gray-500 hover:text-gray-800 text-sm font-medium mt-4 md:mt-0"
-                            >
-                                Kosongkan formulir
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                </footer>
             </div>
-
-            {/* Footer */}
-            <footer className="py-8 text-center">
-                <p className="text-gray-400 text-[11px]">
-                    Formulir ini dibuat di dalam sistem internal SIM Inventaris.
-                </p>
-                <p className="text-gray-400 text-[11px] mt-1 font-bold">
-                    &copy; 2026 RS Daerah Nganjuk. All Rights Reserved.
-                </p>
-            </footer>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @import url('https://fonts.googleapis.com/css2?family=Telex&display=swap');
-                body { font-family: 'Telex', sans-serif; }
-                input:focus, select:focus, textarea:focus {
-                    outline: none !important;
-                    box-shadow: none !important;
-                }
-            ` }} />
-        </div>
+        </>
     );
 }

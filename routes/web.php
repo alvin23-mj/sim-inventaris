@@ -11,7 +11,9 @@ use App\Http\Controllers\UnitRequestController;
 use App\Http\Controllers\UserController;
 
 Route::get('/', [UnitRequestController::class, 'index'])->name('home');
+Route::get('/permintaan', [UnitRequestController::class, 'create'])->name('requests.create');
 Route::post('/requests', [UnitRequestController::class, 'store'])->name('requests.store');
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard', [
